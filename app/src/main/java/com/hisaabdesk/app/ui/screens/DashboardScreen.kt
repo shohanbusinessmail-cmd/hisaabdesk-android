@@ -16,7 +16,7 @@ import com.hisaabdesk.app.ui.components.EmptyState
 import com.hisaabdesk.app.ui.components.MoneyText
 import com.hisaabdesk.app.ui.components.SectionCard
 import com.hisaabdesk.app.ui.components.typeLabelBn
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun DashboardScreen(vm: MainViewModel, nav: NavController) {
@@ -56,7 +56,7 @@ fun DashboardScreen(vm: MainViewModel, nav: NavController) {
         // we reuse observeSavingsBalance per account via first() snapshot
         var t = 0L
         savingsList.filter { !it.archived }.forEach { s ->
-            t += kotlinx.coroutines.flow.firstOrNull(vm.repo.observeSavingsBalance(s.id)) ?: 0L
+            t += vm.repo.observeSavingsBalance(s.id).first()
         }
         savingsMovementsTotal = t
     }
@@ -67,7 +67,7 @@ fun DashboardScreen(vm: MainViewModel, nav: NavController) {
     LaunchedEffect(debts) {
         var rec = 0L; var pay = 0L
         debts.filter { it.status == "ACTIVE" }.forEach { d ->
-            val paid = kotlinx.coroutines.flow.firstOrNull(vm.repo.observeDebtPaid(d.id)) ?: 0L
+            val paid = vm.repo.observeDebtPaid(d.id).first()
             val out = (d.principalPoisha - paid).coerceAtLeast(0)
             if (d.direction == "LENT") rec += out else pay += out
         }
@@ -78,7 +78,7 @@ fun DashboardScreen(vm: MainViewModel, nav: NavController) {
     LaunchedEffect(ngoLoans) {
         var t = 0L
         ngoLoans.filter { it.status == "ACTIVE" }.forEach { l ->
-            val paid = kotlinx.coroutines.flow.firstOrNull(vm.repo.observeNgoPaid(l.id)) ?: 0L
+            val paid = vm.repo.observeNgoPaid(l.id).first()
             val total = l.totalPayablePoisha ?: ((l.principalPoisha) + (l.serviceChargePoisha ?: 0) + (l.otherChargesPoisha ?: 0))
             t += (total - paid).coerceAtLeast(0)
         }
@@ -87,7 +87,7 @@ fun DashboardScreen(vm: MainViewModel, nav: NavController) {
     LaunchedEffect(bankLoans) {
         var t = 0L
         bankLoans.filter { it.status == "ACTIVE" }.forEach { l ->
-            val paid = kotlinx.coroutines.flow.firstOrNull(vm.repo.observeBankPaid(l.id)) ?: 0L
+            val paid = vm.repo.observeBankPaid(l.id).first()
             val total = l.contractualTotalPayablePoisha ?: l.principalPoisha
             t += (total - paid).coerceAtLeast(0)
         }

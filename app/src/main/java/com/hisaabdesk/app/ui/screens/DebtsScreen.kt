@@ -94,7 +94,7 @@ fun DebtsScreen(vm: MainViewModel) {
             } },
             confirmButton = { Button(onClick = {
                 try { val amt = Money.parsePoisha(amount); val pid = personId ?: throw IllegalArgumentException("ব্যক্তি নির্বাচন করুন।"); val acc = accountId ?: throw IllegalArgumentException("অ্যাকাউন্ট নির্বাচন করুন।")
-                    vm.run("ধার-দেনা সংরক্ষণ হয়েছে।") { vm.repo.createPersonalDebt(pid, direction, amt, System.currentTimeMillis(), null, purpose.trim(), acc) }; showDebt = false
+                    vm.run("ধার-দেনা সংরক্ষণ হয়েছে।") { vm.repo.createPersonalDebt(pid, direction, amt, System.currentTimeMillis(), null, purpose.trim(), acc, "") }; showDebt = false
                 } catch (e: Exception) { err = e.message }
             }) { Text("সংরক্ষণ") } },
             dismissButton = { TextButton(onClick = { showDebt = false }) { Text("বাতিল") } })

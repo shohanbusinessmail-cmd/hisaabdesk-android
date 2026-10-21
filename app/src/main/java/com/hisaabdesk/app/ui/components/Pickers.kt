@@ -4,6 +4,7 @@ package com.hisaabdesk.app.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import com.hisaabdesk.app.data.local.entity.FinancialAccount
 import com.hisaabdesk.app.data.local.entity.TransactionCategory
 
