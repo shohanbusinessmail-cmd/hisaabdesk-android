@@ -13,7 +13,11 @@ jobs:
         uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          echo "Preinstalled SDK: $ANDROID_HOME"
+          ls "$ANDROID_HOME" || true
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0"
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
