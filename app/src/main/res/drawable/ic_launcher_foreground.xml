@@ -1,0 +1,9 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Ledger book -->
+    <path android:fillColor="#FFFFFF" android:pathData="M32,24h40a4,4 0 0 1 4,4v52a4,4 0 0 1 -4,4h-40z"/>
+    <path android:fillColor="#EAF6EE" android:pathData="M38,34h28v5h-28zM38,44h28v5h-28zM38,54h18v5h-18z"/>
+    <!-- Checkmark -->
+    <path android:strokeColor="#16834A" android:strokeWidth="6" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M40,66 L50,76 L68,57"/>
+    <!-- Taka sign stylised dot accent -->
+    <path android:fillColor="#11643B" android:pathData="M72,24 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+</vector>
