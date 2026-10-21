@@ -3,7 +3,7 @@ on:
   push: { branches: [main] }
   pull_request:
   workflow_dispatch:
-permissions: { contents: read }
+permissions: { contents: read, pull-requests: write, issues: write }
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,12 +30,31 @@ jobs:
         run: |
           java -jar gradle/wrapper/gradle-wrapper.jar --version || ./gradlew --version
       - name: Unit tests
-        run: ./gradlew testDebugUnitTest --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew testDebugUnitTest --stacktrace 2>&1 | tee "$GITHUB_WORKSPACE/build-log.txt"
       - name: Lint
-        run: ./gradlew lintDebug --stacktrace
-        continue-on-error: false
+        run: |
+          set -o pipefail
+          ./gradlew lintDebug --stacktrace 2>&1 | tee -a "$GITHUB_WORKSPACE/build-log.txt"
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --stacktrace 2>&1 | tee -a "$GITHUB_WORKSPACE/build-log.txt"
+      - name: Post build log to PR on failure
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          tail -c 45000 "$GITHUB_WORKSPACE/build-log.txt" > /tmp/snippet.txt || echo "no log" > /tmp/snippet.txt
+          python3 - << 'PYEOF'
+          import json, urllib.request, os
+          body = open('/tmp/snippet.txt', encoding='utf-8', errors='replace').read()
+          payload = json.dumps({"body": "CI build log (tail):\n\n```text\n" + body.replace("```", "'''") + "\n```"}).encode()
+          req = urllib.request.Request(f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{os.environ['PR_NUMBER']}/comments", data=payload, headers={"Authorization": f"Bearer {os.environ['GH_TOKEN']}", "Accept": "application/vnd.github+json", "Content-Type": "application/json"})
+          print(urllib.request.urlopen(req).status)
+          PYEOF
       - name: Verify APK
         run: |
           ls -lh app/build/outputs/apk/debug/
